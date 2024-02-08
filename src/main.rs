@@ -20,7 +20,8 @@ struct ProjectInfo {
 #[derive(Debug, Serialize, Deserialize)]
 struct TaskInfo {
     id: String,
-    projectId: String,
+    #[serde(rename = "projectId")]
+    project_id: String,
     title: Option<String>,
     content: Option<String>,
     tags: Option<Vec<String>>,
@@ -72,16 +73,33 @@ fn main() {
         println!("{}: {}", i, project_list[i].name);
     }
     print!(
-        "Enter index of list to export (0-{}): ",
+        "Enter index of list to export (0-{}) or 'all': ",
         project_list.len() - 1
     );
     io::stdout().flush().unwrap();
-    input = "".to_string();
+    input.clear();
     io::stdin().read_line(&mut input).unwrap();
-    let index = input.trim().parse::<usize>().unwrap();
-    let project_id = &project_list[index].id;
-    let project_name = &project_list[index].name;
+    if input.trim() == "all" {
+        for index in 0..project_list.len() {
+            export_project(&project_list[index], &access_token);
+        }
+    } else {
+        match input.trim().parse::<usize>() {
+            Ok(index) => {
+                export_project(&project_list[index], &access_token);
+            }
+            Err(_) => {
+                panic!("Valid input: 0-{} or 'all'", project_list.len() - 1);
+            }
+        }
+    }
+}
 
+fn export_project(project_info: &ProjectInfo, access_token: &str) {
+    let project_id = &project_info.id;
+    let project_name = &project_info.name;
+
+    let client = reqwest::blocking::Client::new();
     let task_list = client
         .get(format!(
             "https://ticktick.com/open/v1/project/{project_id}/data"
