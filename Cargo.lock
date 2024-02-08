@@ -125,6 +125,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "export-ticktick"
+version = "0.1.0"
+dependencies = [
+ "reqwest",
+ "serde",
+]
+
+[[package]]
 name = "fastrand"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -206,14 +214,6 @@ dependencies = [
  "pin-project-lite",
  "pin-utils",
  "slab",
-]
-
-[[package]]
-name = "get-ticktick-md"
-version = "0.1.0"
-dependencies = [
- "reqwest",
- "serde",
 ]
 
 [[package]]
