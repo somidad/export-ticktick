@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="sakura.css" type="text/css" />
+  </head>
+  <body>
+    <h3>Ticktick Markdown Exporter</h3>
+    <hr />
+    <div style="text-align: center">
+      To authorize this app, enter the following code:
+    </div>
+    <input id="code" style="width: 100%; text-align: center" readonly />
+    <button id="copy_button" style="width: 100%">Copy</button>
+  </body>
+  <script>
+    const searchParams = new URLSearchParams(window.location.search);
+    const code = searchParams.get("code");
+
+    const input_code = document.getElementById("code");
+    input_code.setAttribute("value", code);
+
+    const copy_button = document.getElementById("copy_button");
+    copy_button.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(code);
+      copy_button.textContent = "Copied!";
+      setTimeout(() => {
+        copy_button.textContent = "Copy";
+      }, 2000);
+    });
+  </script>
+</html>
