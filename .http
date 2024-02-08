@@ -1,0 +1,31 @@
+# https://ticktick.com/oauth/authorize?scope=tasks:read&client_id=client_id&response_type=code
+
+@client_id = 
+@client_secret = 
+
+POST https://ticktick.com/oauth/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic {{client_id}} {{client_secret}}
+
+code=eGMDwG
+&grant_type=authorization_code
+&scope=tasks:read
+
+###
+
+# Get a list of projects (lists)
+
+@base_url = https://ticktick.com
+@access_token = 
+
+GET {{base_url}}/open/v1/project
+Authorization: Bearer {{access_token}}
+
+###
+
+# Get a list of tasks (and notes) in a project
+
+@project_id = 
+
+GET {{base_url}}/open/v1/project/{{project_id}}/data
+Authorization: Bearer {{access_token}}
