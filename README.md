@@ -10,8 +10,4 @@
 ## Limitations
 
 - Exporting Inbox is not supported
-- A filename for a task/note is its `id` instead of its title
-  - The title is written in the first level 1 heading of the exported file
-- A foldername for a list is its `id` instead of its title
-  - The title is written in `.metadata` under the exported folder
 - Attachments are not downloaded

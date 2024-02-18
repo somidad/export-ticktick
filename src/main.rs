@@ -1,8 +1,10 @@
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     fs,
     io::{self, Write},
+    path::Path,
 };
 mod config;
 
@@ -111,14 +113,33 @@ fn export_project(project_info: &ProjectInfo, access_token: &str) {
         .unwrap()
         .tasks;
 
-    fs::create_dir(project_id).unwrap();
+    let invalid_file_chars = Regex::new(r#"[<>:"/\\|?*]"#).unwrap();
 
-    let mut file = fs::File::create(format!("{project_id}/.metadata")).unwrap();
-    file.write_all(format!("{}", project_name).as_bytes())
-        .unwrap();
+    let replaced_project_name = invalid_file_chars.replace_all(project_name, "_");
+    let foldername = replaced_project_name.into_owned();
+    let foldername_unique = if Path::new(&foldername).exists() {
+        format!("{foldername}_{project_id}")
+    } else {
+        foldername
+    };
+    fs::create_dir(&foldername_unique).unwrap();
 
     for task in &task_list {
-        let mut file = fs::File::create(format!("{project_id}/{}.md", task.id)).unwrap();
+        let taskname = match &task.title {
+            Some(title) => {
+                let replaced_task_name = invalid_file_chars.replace_all(title, "_");
+                replaced_task_name.into_owned()
+            }
+            None => task.id.to_owned(),
+        };
+        let taskname_unique =
+            if Path::new(format!("{foldername_unique}/{taskname}.md").as_str()).exists() {
+                format!("{taskname}_{}", task.id)
+            } else {
+                taskname
+            };
+        let mut file =
+            fs::File::create(format!("{foldername_unique}/{taskname_unique}.md")).unwrap();
 
         file.write_all(b"---\n").unwrap();
         file.write_all(b"tags:\n").unwrap();
@@ -133,14 +154,6 @@ fn export_project(project_info: &ProjectInfo, access_token: &str) {
             None => {}
         }
         file.write_all(b"---\n").unwrap();
-
-        match &task.title {
-            Some(title) => {
-                file.write_all(b"\n").unwrap();
-                file.write_all(format!("# {title}\n").as_bytes()).unwrap();
-            }
-            None => {}
-        }
 
         match &task.content {
             Some(content) => {
