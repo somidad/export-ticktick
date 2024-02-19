@@ -1,5 +1,7 @@
 # Ticktick Exporter
 
+Export Ticktick tasks/notes as Markdown files
+
 ## Usage
 
 - Download and execute `export-ticktick`
