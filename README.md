@@ -14,9 +14,10 @@ Export Ticktick tasks/notes as Markdown files
 - Exporting Inbox is not supported
 - Attachments are not downloaded
 
-## ❤ Support
+## ❤ Issue & Support
 
-TBU
+- Please report [issue](https://github.com/somidad/export-ticktick/issues) if you have any issue, request or suggestion
+- Please consider [buy me a coffee](https://www.buymeacoffee.com/somidad) if you feel this app is useful
 
 ## 🏗 Build from source
 
