@@ -1,10 +1,10 @@
 $platforms = [System.Collections.ArrayList]::new()
-$platforms.add(@("x86_64-pc-windows-msvc", "win-x64", ".exe"))
-$platforms.add(@("aarch64-pc-windows-msvc", "win-arm64", ".exe"))
-# $platforms.add(@("x86_64-unknown-linux-gnu", "linux-x64", ""))
-# $platforms.add(@("aarch64-unknown-linux-gnu", "linux-arm64", ""))
-# $platforms.add(@("x86_64-apple-darwin", "mac-x64", ""))
-# $platforms.add(@("aarch64-apple-darwin", "mac-arm64", ""))
+[void]$platforms.add(@("x86_64-pc-windows-msvc", "win-x64", ".exe"))
+[void]$platforms.add(@("aarch64-pc-windows-msvc", "win-arm64", ".exe"))
+# [void]$platforms.add(@("x86_64-unknown-linux-gnu", "linux-x64", ""))
+# [void]$platforms.add(@("aarch64-unknown-linux-gnu", "linux-arm64", ""))
+# [void]$platforms.add(@("x86_64-apple-darwin", "mac-x64", ""))
+# [void]$platforms.add(@("aarch64-apple-darwin", "mac-arm64", ""))
 
 cargo clean
 
