@@ -11,3 +11,27 @@
 
 - Exporting Inbox is not supported
 - Attachments are not downloaded
+
+## Build from source
+
+- [ ] TBU for prerequisites and dependencies
+
+Windows:
+
+```powershell
+cd _scripts
+.\build-win.ps1
+```
+Linux:
+
+```powershell
+cd _scripts
+./build-linux.ps1
+```
+
+macOS:
+
+```powershell
+cd _scripts
+./build-mac.ps1
+```
