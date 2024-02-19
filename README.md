@@ -23,7 +23,7 @@ Export Ticktick tasks/notes as Markdown files
 
 ⚠️ TBU for prerequisites and dependencies
 
-- Comment out or uncomment platforms in `build.ps1`
+- Comment out or uncomment platforms in [`build.ps1`](build.ps1)
 - Execute the following command:
 
 ```powershell
