@@ -11,12 +11,12 @@ code=eGMDwG
 &grant_type=authorization_code
 &scope=tasks:read
 
+@base_url = https://ticktick.com
+@access_token = ab370409-d23f-478a-9e74-604b90b2aa0d
+
 ###
 
 # Get a list of projects (lists)
-
-@base_url = https://ticktick.com
-@access_token = 
 
 GET {{base_url}}/open/v1/project
 Authorization: Bearer {{access_token}}
