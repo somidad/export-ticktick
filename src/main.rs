@@ -1,3 +1,4 @@
+use colored::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -5,6 +6,7 @@ use std::{
     fs,
     io::{self, Write},
     path::Path,
+    process::exit,
 };
 mod config;
 
@@ -37,9 +39,9 @@ struct ProjectWithData {
 
 fn main() {
     let client_id = config::CLIENT_ID;
-    println!("Visit https://ticktick.com/oauth/authorize?scope=tasks:read&client_id={client_id}&response_type=code to get access token");
+    println!("{} {} {}", "Visit", format!("https://ticktick.com/oauth/authorize?scope=tasks:read&client_id={client_id}&response_type=code").blue(), "to get access token");
 
-    print!("Enter code: ");
+    print!("Enter {}: ", "code".magenta());
     io::stdout().flush().unwrap();
     let mut input = String::new();
     io::stdin().read_line(&mut input).unwrap();
@@ -71,12 +73,18 @@ fn main() {
         .unwrap()
         .json::<Vec<ProjectInfo>>()
         .unwrap();
+    if project_list.len() == 0 {
+        println!("{}: ", "No list to export. Exit".red());
+        exit(0);
+    }
+    println!("==== Lists ====");
     for i in 0..project_list.len() {
         println!("{}: {}", i, project_list[i].name);
     }
     print!(
-        "Enter index of list to export (0-{}) or 'all': ",
-        project_list.len() - 1
+        "Enter index of list to export {} or {}: ",
+        format!("(0-{})", project_list.len() - 1).magenta(),
+        "'all'".magenta(),
     );
     io::stdout().flush().unwrap();
     input.clear();
@@ -95,6 +103,7 @@ fn main() {
             }
         }
     }
+    println!("{}", "Done".green());
 }
 
 fn export_project(project_info: &ProjectInfo, access_token: &str) {
