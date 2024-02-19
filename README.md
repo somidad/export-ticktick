@@ -21,24 +21,11 @@ Export Ticktick tasks/notes as Markdown files
 
 ## 🏗 Build from source
 
-- [ ] TBU for prerequisites and dependencies
+⚠️ TBU for prerequisites and dependencies
 
-Windows:
-
-```powershell
-cd _scripts
-.\build-win.ps1
-```
-Linux:
+- Comment out or uncomment platforms in `build.ps1`
+- Execute the following command:
 
 ```powershell
-cd _scripts
-./build-linux.ps1
-```
-
-macOS:
-
-```powershell
-cd _scripts
-./build-mac.ps1
+./build.ps1
 ```
