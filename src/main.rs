@@ -1,6 +1,5 @@
 use colored::*;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     fs,
@@ -8,38 +7,14 @@ use std::{
     path::Path,
     process::exit,
 };
+mod api;
+use api::*;
 mod config;
-
-#[derive(Debug, Serialize, Deserialize)]
-struct AccessTokenResponse {
-    access_token: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct ProjectInfo {
-    id: String,
-    name: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct TaskInfo {
-    id: String,
-    #[serde(rename = "projectId")]
-    project_id: String,
-    title: Option<String>,
-    content: Option<String>,
-    tags: Option<Vec<String>>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct ProjectWithData {
-    project: ProjectInfo,
-    tasks: Vec<TaskInfo>,
-}
+use config::*;
 
 fn main() {
-    let client_id = config::CLIENT_ID;
-    println!("{} {} {}", "Visit", format!("https://ticktick.com/oauth/authorize?scope=tasks:read&client_id={client_id}&response_type=code").blue(), "to get access token");
+    let url = format!("https://ticktick.com/oauth/authorize?scope=tasks:read&client_id={CLIENT_ID}&response_type=code").blue();
+    println!("Visit {url} to get access token");
 
     print!("Enter {}: ", "code".magenta());
     io::stdout().flush().unwrap();
@@ -57,7 +32,7 @@ fn main() {
 
     let access_token = client
         .post("https://ticktick.com/oauth/token")
-        .basic_auth(client_id, Some(config::CLIENT_SECRET))
+        .basic_auth(CLIENT_ID, Some(config::CLIENT_SECRET))
         .form(&oauth_request_form)
         .send()
         .unwrap()
@@ -81,27 +56,27 @@ fn main() {
     for i in 0..project_list.len() {
         println!("{}: {}", i, project_list[i].name);
     }
+    let last_index = project_list.len() - 1;
     print!(
         "Enter index of list to export {} or {}: ",
-        format!("(0-{})", project_list.len() - 1).magenta(),
+        format!("(0-{})", last_index).magenta(),
         "'all'".magenta(),
     );
     io::stdout().flush().unwrap();
     input.clear();
     io::stdin().read_line(&mut input).unwrap();
-    if input.trim() == "all" {
-        for index in 0..project_list.len() {
-            export_project(&project_list[index], &access_token);
-        }
+    let stop = if input.trim() == "all" {
+        project_list.len()
     } else {
-        match input.trim().parse::<usize>() {
-            Ok(index) => {
-                export_project(&project_list[index], &access_token);
-            }
-            Err(_) => {
-                panic!("Valid input: 0-{} or 'all'", project_list.len() - 1);
-            }
+        let error_msg = format!("Valid input: 0-{} or 'all'", last_index);
+        let index = input.trim().parse::<usize>().expect(&error_msg);
+        if index > last_index {
+            panic!("{error_msg}");
         }
+        index + 1
+    };
+    for index in 0..stop {
+        export_project(&project_list[index], &access_token);
     }
     println!("{}", "Done".green());
 }
