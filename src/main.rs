@@ -1,8 +1,9 @@
+use chrono::{DateTime, Local};
 use colored::*;
 use regex::Regex;
 use std::{
     collections::HashMap,
-    fs,
+    fs::{self, create_dir},
     io::{self, Write},
     path::Path,
     process::exit,
@@ -13,8 +14,8 @@ mod config;
 use config::*;
 
 fn main() {
-    let url = format!("https://ticktick.com/oauth/authorize?scope=tasks:read&client_id={CLIENT_ID}&response_type=code").blue();
-    println!("Visit {url} to get access token");
+    let url = format!("https://ticktick.com/oauth/authorize?scope=tasks:read&client_id={CLIENT_ID}&response_type=code");
+    println!("Visit {} to get access token", url.blue());
 
     print!("Enter {}: ", "code".magenta());
     io::stdout().flush().unwrap();
@@ -24,8 +25,6 @@ fn main() {
 
     let client = reqwest::blocking::Client::new();
     let mut oauth_request_form = HashMap::new();
-    // oauth_request_form.insert("cliend_id", client_id);
-    // oauth_request_form.insert("client_secret", config::CLIENT_SECRET);
     oauth_request_form.insert("code", code);
     oauth_request_form.insert("grant_type", "authorization_code");
     oauth_request_form.insert("scope", "tasks:read");
@@ -39,7 +38,6 @@ fn main() {
         .json::<AccessTokenResponse>()
         .unwrap()
         .access_token;
-    // println!("Access token: {access_token}");
 
     let project_list = client
         .get("https://ticktick.com/open/v1/project")
@@ -54,7 +52,7 @@ fn main() {
     }
     println!("==== Lists ====");
     for i in 0..project_list.len() {
-        println!("{}: {}", i, project_list[i].name);
+        println!("{i}: {}", project_list[i].name);
     }
     let last_index = project_list.len() - 1;
     print!(
@@ -68,20 +66,29 @@ fn main() {
     let stop = if input.trim() == "all" {
         project_list.len()
     } else {
-        let error_msg = format!("Valid input: 0-{} or 'all'", last_index);
+        let error_msg = format!("Valid input: 0-{last_index} or 'all'");
         let index = input.trim().parse::<usize>().expect(&error_msg);
         if index > last_index {
             panic!("{error_msg}");
         }
         index + 1
     };
+    let container_foldername = create_container_folder().unwrap();
     for index in 0..stop {
-        export_project(&project_list[index], &access_token);
+        export_project(&project_list[index], &access_token, &container_foldername);
     }
     println!("{}", "Done".green());
 }
 
-fn export_project(project_info: &ProjectInfo, access_token: &str) {
+fn create_container_folder() -> Result<String, ()> {
+    let now: DateTime<Local> = Local::now();
+    let formatted = now.format("%Y-%m-%d_%H-%M-%S").to_string();
+    let foldername = format!("ticktick-exported-{formatted}");
+    create_dir(&foldername).unwrap();
+    Ok(foldername)
+}
+
+fn export_project(project_info: &ProjectInfo, access_token: &str, container_foldername: &str) {
     let project_id = &project_info.id;
     let project_name = &project_info.name;
 
@@ -106,7 +113,8 @@ fn export_project(project_info: &ProjectInfo, access_token: &str) {
     } else {
         foldername
     };
-    fs::create_dir(&foldername_unique).unwrap();
+    let project_path = format!("{container_foldername}/{foldername_unique}");
+    fs::create_dir(&project_path).unwrap();
 
     for task in &task_list {
         let taskname = match &task.title {
@@ -117,13 +125,13 @@ fn export_project(project_info: &ProjectInfo, access_token: &str) {
             None => task.id.to_owned(),
         };
         let taskname_unique =
-            if Path::new(format!("{foldername_unique}/{taskname}.md").as_str()).exists() {
+            if Path::new(format!("{project_path}/{taskname}.md").as_str()).exists() {
                 format!("{taskname}_{}", task.id)
             } else {
                 taskname
             };
         let mut file =
-            fs::File::create(format!("{foldername_unique}/{taskname_unique}.md")).unwrap();
+            fs::File::create(format!("{project_path}/{taskname_unique}.md")).unwrap();
 
         file.write_all(b"---\n").unwrap();
         file.write_all(b"tags:\n").unwrap();
